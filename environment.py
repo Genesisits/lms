@@ -1,0 +1,1 @@
+settings = "lms.configure.staging"
