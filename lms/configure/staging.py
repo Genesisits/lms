@@ -38,6 +38,7 @@ DEFAULT_FILE_STORAGE = 'lms.configure.storage_backends.MediaStorage'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.hostinger.in'
+# EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'feedback@clusterit.io'
 EMAIL_HOST_PASSWORD = 'Cluster@123'

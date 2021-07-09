@@ -3,13 +3,15 @@ from django.urls import path
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from rest_framework import routers
 
 from user.views import (
     TrainerViewSet, LogoutView, MyProfileViewSet, UpgradeUserView, QuestionFeedView,
-    AnswerfeedView, ChangePasswordView, TrainerEffectivenessView
+    AnswerfeedView, ChangePasswordView, TrainerEffectivenessView,
+    PasswordResetConfirmView, PasswordResetView
 )
 
 from businessGroup.views import (
@@ -62,9 +64,11 @@ urlpatterns = [
     path('api/login/', MyTokenObtainPairView.as_view(), name='token_obtain'),
     path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('reset_password_confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name ='password_reset_confirm'),
     path('api/logout/', LogoutView.as_view()),
     path('api/dashboard/', DashboardView.as_view()),
     path('api/trainees/', TraineeListView.as_view()),
+    path('password_reset/', PasswordResetView.as_view(), name='rest_password_reset'),
 ]
 
 if settings.DEBUG:
