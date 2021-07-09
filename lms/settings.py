@@ -188,8 +188,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
 #EMAIL_HOST_USER = 'rs.indiamedtronicservices@medtronic.com'
 #EMAIL_HOST_PASSWORD = 'Password12'
-EMAIL_HOST_PASSWORD = None
-EMAIL_HOST_USER = None
 EMAIL_USE_TLS = False
 # EMAIL_USER = 'rs.indiamedtronicservices@medtronic.com'
 
