@@ -4,6 +4,7 @@ import string
 
 from datetime import date
 
+import requests
 from django.contrib.auth import logout as django_logout
 from rest_framework.views import APIView
 from rest_framework_simplejwt import authentication
@@ -24,6 +25,7 @@ from django.contrib.auth.tokens import default_token_generator
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.views.decorators.debug import sensitive_post_parameters
+from django.db.models.query_utils import Q
 
 logger = logging.getLogger(__name__)
 UserModel = get_user_model()
@@ -797,19 +799,13 @@ class PasswordResetView(GenericAPIView):
 
     serializer_class = PasswordResetSerializer
     permission_classes = (AllowAny,)
-    allowed_methods = ('POST', 'GET', 'OPTIONS', 'HEAD')
 
     def post(self, request, *args, **kwargs):
         # Create a serializer with request.data
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         serializer.save()
-        # Return the success message with OK HTTP status
-        return Response(
-            {"success": "Password reset e-mail has been sent."},
-            status=status.HTTP_200_OK
-        )
+        return Response({"success": "Password reset e-mail has been sent."})
 
 
 class PasswordResetConfirmView(GenericAPIView):
@@ -823,9 +819,6 @@ class PasswordResetConfirmView(GenericAPIView):
 
     serializer_class = PasswordResetConfirmSerializer
     permission_classes = (AllowAny,)
-    token_generator = default_token_generator
-    form_class = SetPasswordForm
-    allowed_methods = ('POST', 'GET', 'OPTIONS', 'HEAD')
 
     @sensitive_post_parameters_m
     def dispatch(self, *args, **kwargs):

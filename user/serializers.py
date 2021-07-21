@@ -12,6 +12,7 @@ from rest_framework.exceptions import ValidationError
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode as uid_decoder
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from .models import LmsUser, QuestionFeed, AnswerFeed
 
@@ -179,7 +180,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         """
         Hash value passed by user.
 
-        :param value: password of a user
+        :param value: password of a user=
         :return: a hashed version of the password
         """
         return make_password(value)
@@ -196,19 +197,17 @@ class PasswordResetSerializer(serializers.Serializer):
     Serializer for requesting a password reset e-mail.
     """
 
-    email = serializers.EmailField()
-
+    email = serializers.EmailField(required=True)
     password_reset_form_class = PasswordResetForm
 
     def validate_email(self, value):
         # Create PasswordResetForm with the serializer
         self.reset_form = self.password_reset_form_class(data=self.initial_data)
         if not self.reset_form.is_valid():
-            raise serializers.ValidationError('Error')
+            raise serializers.ValidationError(_('Error'))
 
         if not LmsUser.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Invalid e-mail address')
-
+            raise serializers.ValidationError(_('Invalid e-mail address'))
         return value
 
     def get(self, request, *args, **kwargs):
@@ -225,9 +224,6 @@ class PasswordResetSerializer(serializers.Serializer):
         self.reset_form.save(**opts)
 
 
-INTERNAL_RESET_SESSION_TOKEN = '_password_reset_token'
-
-
 class PasswordResetConfirmSerializer(serializers.Serializer):
     """
     Serializer for requesting a password reset e-mail.
@@ -235,8 +231,8 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
     new_password1 = serializers.CharField(max_length=128, style={'input_type': 'password'})
     new_password2 = serializers.CharField(max_length=128, style={'input_type': 'password'})
-    uid = serializers.CharField()
-    token = serializers.CharField()
+    uid = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
 
     set_password_form_class = SetPasswordForm
     _errors = {}
@@ -251,7 +247,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         # Decode the uidb64 (allauth use base36) to uid to get User object
         try:
             uid = force_str(uid_decoder(attrs['uid']))
-            self.user = UserModel._default_manager.get(pk=uid)
+            self.user = LmsUser._default_manager.get(pk=uid)
         except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist):
             raise ValidationError({'uid': ['Invalid value']})
 
