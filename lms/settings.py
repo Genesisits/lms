@@ -66,6 +66,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'lms.urls'
+PASSWORD_RESET_TIMEOUT_DAYS = None
+PASSWORD_RESET_TIMEOUT = 600
 
 TEMPLATES = [
     {
@@ -184,11 +186,9 @@ MEDIA_ROOT = 'D:\\media'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'mail.medtronic.com'
-EMAIL_PORT = 25
+# EMAIL_PORT = 587
 #EMAIL_HOST_USER = 'rs.indiamedtronicservices@medtronic.com'
 #EMAIL_HOST_PASSWORD = 'Password12'
-EMAIL_HOST_PASSWORD = None
-EMAIL_HOST_USER = None
 EMAIL_USE_TLS = False
 # EMAIL_USER = 'rs.indiamedtronicservices@medtronic.com'
 

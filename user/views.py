@@ -4,13 +4,12 @@ import string
 
 from datetime import date
 
-from django.db.models import Q
+import requests
 from django.contrib.auth import logout as django_logout
-
 from rest_framework.views import APIView
 from rest_framework_simplejwt import authentication
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from django.utils.decorators import method_decorator
 from rest_framework import viewsets, status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework_simplejwt.views import TokenViewBase
@@ -21,8 +20,21 @@ from businessGroup.models import BusinessGroup
 from assessment.models import *
 from businessGroup.views import notify_email
 from .validations import *
+from django.db.models.query_utils import Q
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.views.decorators.debug import sensitive_post_parameters
+from django.db.models.query_utils import Q
 
 logger = logging.getLogger(__name__)
+UserModel = get_user_model()
+
+sensitive_post_parameters_m = method_decorator(
+    sensitive_post_parameters(
+        'new_password1', 'new_password2',
+    ),
+)
 
 
 class LogoutView(APIView):
@@ -775,3 +787,45 @@ def batches_user_count():
             }
         }
     return results
+
+
+class PasswordResetView(GenericAPIView):
+
+    """
+    Calls Django Auth PasswordResetForm save method.
+    Accepts the following POST parameters: email
+    Returns the success/fail message.
+    """
+
+    serializer_class = PasswordResetSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        # Create a serializer with request.data
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"success": "Password reset e-mail has been sent."})
+
+
+class PasswordResetConfirmView(GenericAPIView):
+
+    """
+    Password reset e-mail link is confirmed, therefore this resets the user's password.
+    Accepts the following POST parameters: new_password1, new_password2
+    Accepts the following Django URL arguments: token, uid
+    Returns the success/fail message.
+    """
+
+    serializer_class = PasswordResetConfirmSerializer
+    permission_classes = (AllowAny,)
+
+    @sensitive_post_parameters_m
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"success": "Password has been reset with the new password."})
